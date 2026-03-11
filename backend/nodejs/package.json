@@ -1,0 +1,52 @@
+{
+  "name": "forex-trading-platform-api",
+  "version": "1.0.0",
+  "description": "Backend API for Forex Trading Education Platform",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest",
+    "migrate": "node src/config/database.js",
+    "seed": "node src/seeders/seed.js"
+  },
+  "keywords": ["forex", "trading", "education", "pamm", "community"],
+  "author": "Forex Trading Platform Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "compression": "^1.7.4",
+    "dotenv": "^16.3.1",
+    "pg": "^8.11.3",
+    "sequelize": "^6.32.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "express-validator": "^7.0.1",
+    "express-rate-limit": "^7.1.5",
+    "express-mongo-sanitize": "^2.2.0",
+    "xss-clean": "^0.1.4",
+    "multer": "^1.4.5-lts.1",
+    "aws-sdk": "^2.1492.0",
+    "nodemailer": "^6.9.7",
+    "winston": "^3.11.0",
+    "moment": "^2.29.4",
+    "axios": "^1.6.2",
+    "socket.io": "^4.7.2",
+    "redis": "^4.6.11",
+    "swagger-ui-express": "^5.0.0",
+    "swagger-jsdoc": "^6.2.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.53.0",
+    "prettier": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

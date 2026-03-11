@@ -1,0 +1,147 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: forex-postgres
+    environment:
+      POSTGRES_DB: forex_trading_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - forex-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: forex-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - forex-network
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+  # Node.js Backend API
+  api-node:
+    build:
+      context: ../backend/nodejs
+      dockerfile: Dockerfile
+    container_name: forex-api-node
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: forex_trading_platform
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-key-here}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
+    ports:
+      - "3001:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - forex-network
+    volumes:
+      - ../backend/nodejs/uploads:/app/uploads
+      - ../backend/nodejs/logs:/app/logs
+
+  # Python FastAPI Backend (Alternative)
+  api-python:
+    build:
+      context: ../backend/python
+      dockerfile: Dockerfile
+    container_name: forex-api-python
+    environment:
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-password}@postgres:5432/forex_trading_platform
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-here}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - forex-network
+    volumes:
+      - ../backend/python/uploads:/app/uploads
+      - ../backend/python/logs:/app/logs
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ../frontend/nextjs
+      dockerfile: Dockerfile
+    container_name: forex-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+      NEXT_PUBLIC_GA_ID: ${NEXT_PUBLIC_GA_ID:-}
+      NEXT_PUBLIC_ADSENSE_ID: ${NEXT_PUBLIC_ADSENSE_ID:-}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-node
+    networks:
+      - forex-network
+    volumes:
+      - ../frontend/nextjs/public:/app/public
+      - ../frontend/nextjs/.next:/app/.next
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: forex-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - frontend
+      - api-node
+    networks:
+      - forex-network
+
+  # Adminer Database Management
+  adminer:
+    image: adminer
+    container_name: forex-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+    networks:
+      - forex-network
+
+networks:
+  forex-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
