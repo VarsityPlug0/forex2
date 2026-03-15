@@ -4,18 +4,16 @@
   "private": true,
   "description": "Forex Trading Education Platform Frontend",
   "scripts": {
-    "dev": "next dev",
+    "dev": "node --max-old-space-size=4096 node_modules/next/dist/bin/next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "export": "next export"
+    "lint": "next lint"
   },
   "dependencies": {
     "next": "^14.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "axios": "^1.6.2",
-    "react-query": "^3.39.3",
     "react-hook-form": "^7.48.2",
     "zod": "^3.22.4",
     "@hookform/resolvers": "^3.3.2",
@@ -42,13 +40,10 @@
     "react-hot-toast": "^2.4.1",
     "react-intersection-observer": "^9.5.3",
     "swr": "^2.2.5",
-    "@tradingview/lightweight-charts": "^4.1.0",
+    "lightweight-charts": "^4.1.0",
     "react-countup": "^6.4.1",
-    "react-typed": "^2.0.12",
     "next-themes": "^0.2.1",
-    "next-seo": "^6.0.0",
-    "next-sitemap": "^4.2.3",
-    "next-pwa": "^5.6.0",
+    "next-seo": "^6.4.0",
     "@vercel/analytics": "^1.1.1",
     "@vercel/speed-insights": "^1.0.10"
   },
@@ -61,8 +56,7 @@
     "eslint-config-next": "^14.0.0",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
-    "typescript": "^5.3.3",
-    "@types/tradingview-widgets": "^1.0.0"
+    "typescript": "^5.3.3"
   },
   "engines": {
     "node": ">=18.0.0",
