@@ -1,7 +1,7 @@
 'use client';
 import { memo, lazy, Suspense } from 'react';
 
-const LessonChart = lazy(() => import('./LessonChart'));
+const LessonChart = lazy(() => import('./TradingViewChart'));
 
 const CHART_TYPES = new Set([
   'intro-ta',
