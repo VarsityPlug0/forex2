@@ -9,6 +9,8 @@ const CHART_TYPES = new Set([
   'moving-averages', 'rsi', 'macd', 'bollinger', 'fibonacci', 'head-shoulders',
   'flags', 'volume', 'backtest', 'drawdown', 'live-chart', 'price-action',
   'market-structure', 'bos', 'choch', 'order-blocks', 'fvg', 'chart',
+  // Bevan's Three-Candle Strategy
+  'tc-structure', 'tc-supply-demand', 'tc-liquidity', 'tc-mtf', 'tc-walkthrough',
 ]);
 
 function getVisualType(title: string, _courseId: number): string { // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -81,6 +83,19 @@ function getVisualType(title: string, _courseId: number): string { // eslint-dis
   if (t.includes('trade management with price action')) return 'trade-mgmt';
   if (t.includes('scalping') || t.includes('swing trading')) return 'scalp-swing';
   if (t.includes('building your pa strategy') || t.includes('pa strategy')) return 'pa-strategy';
+
+  // Bevan's Three-Candle Strategy (Course 7)
+  if (t.includes('three-candle philosophy') || t.includes('introduction: the three')) return 'tc-intro';
+  if (t.includes('market structure') && t.includes('swing')) return 'tc-structure';
+  if (t.includes('supply') && t.includes('demand') && t.includes('zone')) return 'tc-supply-demand';
+  if (t.includes('liquidity sweep') || (t.includes('liquidity') && t.includes('smart money'))) return 'tc-liquidity';
+  if (t.includes('three-candle bullish') || (t.includes('three-candle') && t.includes('bullish'))) return 'tc-bullish';
+  if (t.includes('three-candle bearish') || (t.includes('three-candle') && t.includes('bearish'))) return 'tc-bearish';
+  if (t.includes('amd') || t.includes('accumulation') || (t.includes('market phase') && t.includes('distribution'))) return 'tc-amd';
+  if (t.includes('multi-timeframe analysis') && !t.includes('building')) return 'tc-mtf';
+  if (t.includes('entry confirmation') || (t.includes('entry') && t.includes('lower timeframe'))) return 'tc-entry';
+  if (t.includes('common mistake') || (t.includes('mistake') && t.includes('exercise'))) return 'tc-mistakes';
+  if (t.includes('full strategy walkthrough') || (t.includes('strategy') && t.includes('walkthrough'))) return 'tc-walkthrough';
 
   // EA / Automated trading course
   if (t.includes('introduction to automated')) return 'ea-intro';
@@ -2425,6 +2440,288 @@ function ChartSVG() {
   );
 }
 
+// ─── BEVAN'S THREE-CANDLE STRATEGY VISUALS ────────────────────────────────────
+
+function TcIntroSVG() {
+  return (
+    <svg viewBox="0 0 620 280" xmlns="http://www.w3.org/2000/svg">
+      <rect width="620" height="280" fill="#0d0d0d" />
+      {/* Three phase boxes */}
+      {[
+        { x: 30,  label: 'ACCUMULATION', sub: 'Smart money builds\nposition in a range', color: 'rgba(99,102,241,0.8)', bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.35)' },
+        { x: 230, label: 'MANIPULATION', sub: 'Liquidity sweep:\nstops hunted by wick', color: 'rgba(245,158,11,0.9)', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.35)' },
+        { x: 430, label: 'DISTRIBUTION', sub: 'Real move begins:\nfollow smart money', color: 'rgba(16,185,129,0.9)', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.35)' },
+      ].map((p) => (
+        <g key={p.label}>
+          <rect x={p.x} y={30} width={160} height={110} rx="10" fill={p.bg} stroke={p.border} strokeWidth="1.5" />
+          <text x={p.x + 80} y={60} textAnchor="middle" fill={p.color} fontSize="10" fontWeight="700" letterSpacing="1">{p.label}</text>
+          <line x1={p.x + 20} y1={70} x2={p.x + 140} y2={70} stroke={p.border} strokeWidth="1" />
+          {p.sub.split('\n').map((line, i) => (
+            <text key={i} x={p.x + 80} y={88 + i * 16} textAnchor="middle" fill="rgba(255,255,255,0.55)" fontSize="10">{line}</text>
+          ))}
+        </g>
+      ))}
+      {/* Arrows between phases */}
+      {[195, 395].map((x) => (
+        <g key={x}>
+          <line x1={x} y1={85} x2={x + 28} y2={85} stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
+          <polygon points={`${x + 28},81 ${x + 36},85 ${x + 28},89`} fill="rgba(255,255,255,0.2)" />
+        </g>
+      ))}
+      {/* Three-candle pattern mini diagram */}
+      <text x="310" y="175" textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="11" fontWeight="600">THE THREE-CANDLE ENTRY SIGNAL</text>
+      {/* C1 */}
+      <line x1="220" y1="200" x2="220" y2="255" stroke="#ef4444" strokeWidth="1.5" />
+      <rect x="210" y="208" width="20" height="28" rx="2" fill="#ef4444" fillOpacity="0.85" />
+      <text x="220" y="270" textAnchor="middle" fill="rgba(255,255,255,0.45)" fontSize="9">C1</text>
+      {/* C2 — pivot low */}
+      <line x1="280" y1="196" x2="280" y2="262" stroke="#ef4444" strokeWidth="1.5" />
+      <rect x="270" y="206" width="20" height="32" rx="2" fill="#ef4444" fillOpacity="0.85" />
+      <text x="280" y="270" textAnchor="middle" fill="rgba(255,255,255,0.45)" fontSize="9">C2</text>
+      <text x="280" y="280" textAnchor="middle" fill="rgba(99,102,241,0.8)" fontSize="8">Pivot</text>
+      {/* C3 — sweep + rejection */}
+      <line x1="340" y1="196" x2="340" y2="248" stroke="#10b981" strokeWidth="1.5" />
+      <rect x="330" y="196" width="20" height="22" rx="2" fill="#10b981" fillOpacity="0.85" />
+      <text x="340" y="270" textAnchor="middle" fill="rgba(255,255,255,0.45)" fontSize="9">C3</text>
+      <text x="340" y="280" textAnchor="middle" fill="#f59e0b" fontSize="8">Sweep</text>
+      {/* C1 low dotted line */}
+      <line x1="198" y1="236" x2="395" y2="236" stroke="rgba(245,158,11,0.4)" strokeWidth="1" strokeDasharray="4,3" />
+      <text x="398" y="240" fill="rgba(245,158,11,0.6)" fontSize="8">C1 Low</text>
+      {/* Entry arrow */}
+      <path d="M 400 208 L 400 190" stroke="#10b981" strokeWidth="2" />
+      <polygon points="400,184 396,194 404,194" fill="#10b981" />
+      <text x="400" y="180" textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="700">ENTRY</text>
+      <text x="310" y="258" textAnchor="middle" fill="rgba(255,255,255,0.25)" fontSize="9">C3 sweeps C1 low → closes back above → enter long</text>
+    </svg>
+  );
+}
+
+function TcBullishSVG() {
+  // Candles: [x, openY, closeY, highY, lowY, isBull]
+  const candles: [number, number, number, number, number, boolean][] = [
+    [80,  88,  108, 78,  118, false],  // Context A
+    [155, 83,  108, 75,  116, false],  // Context B
+    [230, 105, 132, 95,  148, false],  // C1 (C1 low = 148)
+    [305, 128, 160, 118, 195, false],  // C2 pivot low (C2 low = 195)
+    [380, 153, 113, 106, 165, true],   // C3: wick to 165 (sweeps C1 low 148 ✓, above C2 low 195 ✓), close at 113
+    [455, 118, 95,  88,  126, true],   // Post A
+    [530, 93,  72,  66,  100, true],   // Post B
+  ];
+  const W = 22;
+  return (
+    <svg viewBox="0 0 620 300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="620" height="300" fill="#0d0d0d" />
+      {/* Demand zone box */}
+      <rect x="282" y="128" width="118" height="67" rx="4" fill="rgba(16,185,129,0.07)" stroke="rgba(16,185,129,0.35)" strokeWidth="1" strokeDasharray="4,3" />
+      <text x="287" y="141" fill="rgba(16,185,129,0.6)" fontSize="8" fontWeight="600" letterSpacing="0.5">DEMAND ZONE</text>
+      {/* C1 low line (stop hunt level) */}
+      <line x1="205" y1="148" x2="510" y2="148" stroke="rgba(245,158,11,0.45)" strokeWidth="1" strokeDasharray="5,3" />
+      <text x="515" y="152" fill="rgba(245,158,11,0.7)" fontSize="8">C1 Low</text>
+      {/* SL line */}
+      <line x1="358" y1="176" x2="510" y2="176" stroke="rgba(239,68,68,0.5)" strokeWidth="1" strokeDasharray="3,2" />
+      <text x="515" y="180" fill="rgba(239,68,68,0.7)" fontSize="8">SL</text>
+      {/* TP line */}
+      <line x1="358" y1="45" x2="510" y2="45" stroke="rgba(16,185,129,0.5)" strokeWidth="1" strokeDasharray="3,2" />
+      <text x="515" y="49" fill="rgba(16,185,129,0.7)" fontSize="8">TP</text>
+      {/* Candles */}
+      {candles.map(([x, openY, closeY, highY, lowY, bull], i) => {
+        const color = bull ? '#10b981' : '#ef4444';
+        const bodyTop = Math.min(openY, closeY);
+        const bodyH = Math.max(Math.abs(openY - closeY), 3);
+        return (
+          <g key={i}>
+            <line x1={x} y1={highY} x2={x} y2={lowY} stroke={color} strokeWidth="1.5" />
+            <rect x={x - W / 2} y={bodyTop} width={W} height={bodyH} rx="2" fill={color} fillOpacity="0.85" />
+          </g>
+        );
+      })}
+      {/* Sweep annotation on C3 wick */}
+      <path d="M 360 153 C 368 158 372 162 372 165" stroke="#f59e0b" strokeWidth="1.5" fill="none" strokeDasharray="3,2" />
+      <polygon points="372,169 368,160 376,161" fill="#f59e0b" />
+      <text x="378" y="172" fill="#f59e0b" fontSize="9" fontWeight="600">⚡ Sweep</text>
+      {/* Rejection annotation */}
+      <text x="370" y="101" fill="#10b981" fontSize="9">Rejection</text>
+      <text x="370" y="112" fill="#10b981" fontSize="9">Close ✓</text>
+      {/* Labels */}
+      <text x="230" y="162" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="9">C1</text>
+      <text x="305" y="210" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="9">C2</text>
+      <text x="305" y="221" textAnchor="middle" fill="rgba(99,102,241,0.8)" fontSize="8">Pivot Low</text>
+      <text x="380" y="184" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="9">C3</text>
+      {/* Entry arrow */}
+      <line x1="455" y1="112" x2="455" y2="80" stroke="#10b981" strokeWidth="2.5" />
+      <polygon points="455,72 449,84 461,84" fill="#10b981" />
+      <text x="455" y="66" textAnchor="middle" fill="#10b981" fontSize="10" fontWeight="700">ENTRY</text>
+      {/* R:R bracket */}
+      <line x1="570" y1="45" x2="570" y2="176" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+      <line x1="566" y1="45" x2="574" y2="45" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+      <line x1="566" y1="176" x2="574" y2="176" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+      <text x="590" y="115" textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="9">1:2+</text>
+      <text x="590" y="126" textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="9">R:R</text>
+      <text x="310" y="248" textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="10" fontWeight="600">Three-Candle Bullish Setup — C3 Sweeps C1 Low → Rejection Close → Entry</text>
+    </svg>
+  );
+}
+
+function TcBearishSVG() {
+  // Mirror of bullish: C2 is pivot HIGH, C3 wicks above C1 high, closes below
+  const candles: [number, number, number, number, number, boolean][] = [
+    [80,  115, 92,  108, 122, true],   // Context A
+    [155, 110, 88,  102, 118, true],   // Context B
+    [230, 132, 108, 145, 98,  true],   // C1 (C1 high = 145)
+    [305, 155, 118, 170, 108, true],   // C2 pivot high (C2 high = 170)
+    [380, 122, 160, 163, 168, false],  // C3: wick to 163 (sweeps C1 high 145 ✓, below C2 high 170 ✓), close at 160
+    [455, 168, 188, 158, 195, false],  // Post A
+    [530, 185, 208, 178, 215, false],  // Post B
+  ];
+  const W = 22;
+  return (
+    <svg viewBox="0 0 620 300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="620" height="300" fill="#0d0d0d" />
+      {/* Supply zone box */}
+      <rect x="282" y="108" width="118" height="67" rx="4" fill="rgba(239,68,68,0.07)" stroke="rgba(239,68,68,0.35)" strokeWidth="1" strokeDasharray="4,3" />
+      <text x="287" y="121" fill="rgba(239,68,68,0.6)" fontSize="8" fontWeight="600" letterSpacing="0.5">SUPPLY ZONE</text>
+      {/* C1 high line */}
+      <line x1="205" y1="145" x2="510" y2="145" stroke="rgba(245,158,11,0.45)" strokeWidth="1" strokeDasharray="5,3" />
+      <text x="515" y="149" fill="rgba(245,158,11,0.7)" fontSize="8">C1 High</text>
+      {/* SL line */}
+      <line x1="358" y1="116" x2="510" y2="116" stroke="rgba(239,68,68,0.5)" strokeWidth="1" strokeDasharray="3,2" />
+      <text x="515" y="120" fill="rgba(239,68,68,0.7)" fontSize="8">SL</text>
+      {/* TP line */}
+      <line x1="358" y1="240" x2="510" y2="240" stroke="rgba(16,185,129,0.5)" strokeWidth="1" strokeDasharray="3,2" />
+      <text x="515" y="244" fill="rgba(16,185,129,0.7)" fontSize="8">TP</text>
+      {/* Candles */}
+      {candles.map(([x, openY, closeY, highY, lowY, bull], i) => {
+        const color = bull ? '#10b981' : '#ef4444';
+        const bodyTop = Math.min(openY, closeY);
+        const bodyH = Math.max(Math.abs(openY - closeY), 3);
+        return (
+          <g key={i}>
+            <line x1={x} y1={highY} x2={x} y2={lowY} stroke={color} strokeWidth="1.5" />
+            <rect x={x - W / 2} y={bodyTop} width={W} height={bodyH} rx="2" fill={color} fillOpacity="0.85" />
+          </g>
+        );
+      })}
+      {/* Sweep annotation on C3 wick (upward) */}
+      <path d="M 360 138 C 368 132 372 128 372 125" stroke="#f59e0b" strokeWidth="1.5" fill="none" strokeDasharray="3,2" />
+      <polygon points="372,120 368,130 376,130" fill="#f59e0b" />
+      <text x="378" y="118" fill="#f59e0b" fontSize="9" fontWeight="600">⚡ Sweep</text>
+      {/* Rejection annotation */}
+      <text x="370" y="173" fill="#ef4444" fontSize="9">Rejection</text>
+      <text x="370" y="184" fill="#ef4444" fontSize="9">Close ✓</text>
+      {/* Labels */}
+      <text x="230" y="92" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="9">C1</text>
+      <text x="305" y="100" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="9">C2</text>
+      <text x="305" y="89" textAnchor="middle" fill="rgba(239,68,68,0.8)" fontSize="8">Pivot High</text>
+      <text x="380" y="107" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="9">C3</text>
+      {/* Entry arrow (down) */}
+      <line x1="455" y1="180" x2="455" y2="212" stroke="#ef4444" strokeWidth="2.5" />
+      <polygon points="455,220 449,208 461,208" fill="#ef4444" />
+      <text x="455" y="234" textAnchor="middle" fill="#ef4444" fontSize="10" fontWeight="700">ENTRY</text>
+      <text x="310" y="268" textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="10" fontWeight="600">Three-Candle Bearish Setup — C3 Sweeps C1 High → Rejection Close → Sell</text>
+    </svg>
+  );
+}
+
+function TcAmdSVG() {
+  return (
+    <svg viewBox="0 0 620 280" xmlns="http://www.w3.org/2000/svg">
+      <rect width="620" height="280" fill="#0d0d0d" />
+      {/* Price path */}
+      {/* Accumulation range — flat oscillation */}
+      <path d="M 30,160 Q 55,150 70,160 Q 85,170 100,160 Q 115,150 130,160 Q 145,170 160,160 Q 175,150 190,162" fill="none" stroke="rgba(99,102,241,0.7)" strokeWidth="2" />
+      {/* Manipulation — false spike down then reverse */}
+      <path d="M 190,162 L 210,195 L 220,158" fill="none" stroke="rgba(245,158,11,0.9)" strokeWidth="2.5" />
+      {/* Distribution — strong up move */}
+      <path d="M 220,158 Q 260,140 300,120 Q 340,100 380,85 Q 420,70 460,58 Q 490,50 520,45" fill="none" stroke="rgba(16,185,129,0.85)" strokeWidth="2.5" />
+      {/* Phase shading */}
+      <rect x="28" y="130" width="167" height="70" rx="6" fill="rgba(99,102,241,0.06)" stroke="rgba(99,102,241,0.25)" strokeWidth="1" />
+      <rect x="188" y="140" width="38" height="68" rx="4" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.3)" strokeWidth="1" />
+      <rect x="218" y="28" width="308" height="140" rx="6" fill="rgba(16,185,129,0.04)" stroke="rgba(16,185,129,0.2)" strokeWidth="1" />
+      {/* Phase labels */}
+      <text x="112" y="118" textAnchor="middle" fill="rgba(99,102,241,0.9)" fontSize="11" fontWeight="700">ACCUMULATION</text>
+      <text x="112" y="132" textAnchor="middle" fill="rgba(99,102,241,0.6)" fontSize="9">Smart money builds</text>
+      <text x="112" y="144" textAnchor="middle" fill="rgba(99,102,241,0.6)" fontSize="9">position in range</text>
+      <text x="207" y="228" textAnchor="middle" fill="rgba(245,158,11,0.9)" fontSize="10" fontWeight="700">MANIPULATION</text>
+      <text x="207" y="240" textAnchor="middle" fill="rgba(245,158,11,0.6)" fontSize="8">Liquidity sweep</text>
+      <text x="372" y="44" textAnchor="middle" fill="rgba(16,185,129,0.9)" fontSize="11" fontWeight="700">DISTRIBUTION</text>
+      <text x="372" y="57" textAnchor="middle" fill="rgba(16,185,129,0.6)" fontSize="9">Real trend — follow</text>
+      <text x="372" y="69" textAnchor="middle" fill="rgba(16,185,129,0.6)" fontSize="9">smart money</text>
+      {/* Sweep wick marker */}
+      <line x1="210" y1="194" x2="185" y2="194" stroke="rgba(245,158,11,0.5)" strokeWidth="1" strokeDasharray="3,2" />
+      <text x="182" y="198" textAnchor="end" fill="rgba(245,158,11,0.7)" fontSize="8">Stop hunt</text>
+      {/* Entry marker */}
+      <circle cx="220" cy="158" r="5" fill="rgba(16,185,129,0.9)" />
+      <text x="226" y="153" fill="#10b981" fontSize="9" fontWeight="600">← Entry (C3 close)</text>
+      {/* Session labels at bottom */}
+      <text x="112" y="260" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="9">Asian Session</text>
+      <text x="207" y="260" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="9">London Open</text>
+      <text x="370" y="260" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="9">NY Session</text>
+      <text x="310" y="278" textAnchor="middle" fill="rgba(255,255,255,0.25)" fontSize="9">Accumulation → Manipulation (sweep) → Distribution (the real move)</text>
+    </svg>
+  );
+}
+
+function TcEntrySVG() {
+  return (
+    <svg viewBox="0 0 620 280" xmlns="http://www.w3.org/2000/svg">
+      <rect width="620" height="280" fill="#0d0d0d" />
+      {/* Top-down zoom funnel */}
+      {[
+        { x: 20,  y: 20,  w: 580, h: 52, label: 'WEEKLY / DAILY', sub: 'Step 1 — Identify trend bias + mark HTF supply / demand zone', color: 'rgba(99,102,241', border: 0.4 },
+        { x: 40,  y: 84,  w: 540, h: 52, label: '4-HOUR / 1-HOUR', sub: 'Step 2 — Watch price approach the HTF zone', color: 'rgba(156,163,175', border: 0.35 },
+        { x: 60,  y: 148, w: 500, h: 52, label: '15-MINUTE', sub: 'Step 3 — Three-candle pattern forming inside the zone', color: 'rgba(245,158,11', border: 0.45 },
+        { x: 80,  y: 212, w: 460, h: 52, label: 'ENTRY (C3 CLOSE)', sub: 'Step 4 — Market buy at C3 close · SL below C3 wick · TP next swing high', color: 'rgba(16,185,129', border: 0.55 },
+      ].map((r) => (
+        <g key={r.label}>
+          <rect x={r.x} y={r.y} width={r.w} height={r.h} rx="8" fill={`${r.color},0.06)`} stroke={`${r.color},${r.border})`} strokeWidth="1.5" />
+          <text x={r.x + r.w / 2} y={r.y + 19} textAnchor="middle" fill={`${r.color},0.9)`} fontSize="10" fontWeight="700" letterSpacing="0.8">{r.label}</text>
+          <text x={r.x + r.w / 2} y={r.y + 35} textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="9">{r.sub}</text>
+        </g>
+      ))}
+      {/* Connecting arrows */}
+      {[72, 136, 200].map((y) => (
+        <g key={y}>
+          <line x1="310" y1={y} x2="310" y2={y + 10} stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+          <polygon points={`310,${y + 13} 306,${y + 6} 314,${y + 6}`} fill="rgba(255,255,255,0.15)" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function TcMistakesSVG() {
+  const mistakes = [
+    { icon: '⏰', title: 'Entering on C2', desc: 'Wait for C3 close — C2 is just the pivot, not confirmation' },
+    { icon: '📍', title: 'SL inside the zone', desc: 'Stop goes BELOW C3 wick, not inside the demand zone' },
+    { icon: '📉', title: 'Trading against HTF', desc: 'Daily downtrend overrides any bullish 15M pattern' },
+    { icon: '🎯', title: 'No zone confluence', desc: 'Pattern alone is noise — it must occur inside a valid zone' },
+    { icon: '🔒', title: 'No break-even move', desc: 'At 1:1 R:R, move SL to entry. Protect profit first' },
+    { icon: '⚡', title: 'Trading every wick', desc: 'Only sweeps at meaningful swing highs/lows are valid setups' },
+  ];
+  return (
+    <svg viewBox="0 0 620 280" xmlns="http://www.w3.org/2000/svg">
+      <rect width="620" height="280" fill="#0d0d0d" />
+      <text x="310" y="22" textAnchor="middle" fill="rgba(239,68,68,0.85)" fontSize="11" fontWeight="700" letterSpacing="1">COMMON MISTAKES TO AVOID</text>
+      {mistakes.map((m, i) => {
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        const x = 18 + col * 200;
+        const y = 38 + row * 108;
+        return (
+          <g key={i}>
+            <rect x={x} y={y} width={186} height={94} rx="8" fill="rgba(239,68,68,0.05)" stroke="rgba(239,68,68,0.2)" strokeWidth="1" />
+            <text x={x + 14} y={y + 22} fontSize="16">{m.icon}</text>
+            <text x={x + 38} y={y + 22} fill="rgba(255,255,255,0.85)" fontSize="10" fontWeight="700">{m.title}</text>
+            {m.desc.split(' — ').map((part, pi) => (
+              <text key={pi} x={x + 14} y={y + 46 + pi * 16} fill="rgba(255,255,255,0.5)" fontSize="9">{part}{pi === 0 && m.desc.includes(' — ') ? ' —' : ''}</text>
+            ))}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 // ─── VISUAL MAP ───────────────────────────────────────────────────────────────
 
 const visualMap: Record<string, () => JSX.Element> = {
@@ -2498,6 +2795,13 @@ const visualMap: Record<string, () => JSX.Element> = {
   'community':         CommunitySVG,
   'assessment':        AssessmentSVG,
   'chart':             ChartSVG,
+  // Bevan's Three-Candle Strategy
+  'tc-intro':          TcIntroSVG,
+  'tc-bullish':        TcBullishSVG,
+  'tc-bearish':        TcBearishSVG,
+  'tc-amd':            TcAmdSVG,
+  'tc-entry':          TcEntrySVG,
+  'tc-mistakes':       TcMistakesSVG,
 };
 
 // ─── EXPORT ───────────────────────────────────────────────────────────────────

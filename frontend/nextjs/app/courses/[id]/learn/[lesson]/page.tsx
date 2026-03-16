@@ -224,6 +224,22 @@ export default function LessonPage({ params }: { params: { id: string; lesson: s
   const router = useRouter();
   const [marking, setMarking] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [transitioning, setTransitioning] = useState(false);
+
+  // Scroll to top of lesson content whenever lesson index changes
+  useEffect(() => {
+    const el = document.getElementById('lesson-top');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [lessonIndex]);
+
+  const goTo = (index: number) => {
+    if (transitioning) return;
+    setTransitioning(true);
+    const url = index === course!.lessons ? `/courses/${course!.id}/complete` : `/courses/${course!.id}/learn/${index}`;
+    router.push(url);
+    setTimeout(() => setTransitioning(false), 600);
+  };
 
   const { progress, loaded, completeLesson, uncompleteLesson, isLessonComplete, progressPercent } = useProgress(course?.id ?? 0);
 
@@ -282,7 +298,16 @@ export default function LessonPage({ params }: { params: { id: string; lesson: s
         </div>
       </div>
 
-      <div className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-8">
+      {/* Transitioning overlay */}
+      {transitioning && (
+        <div className="fixed inset-0 z-50 pointer-events-none" style={{ background: 'rgba(17,17,17,0.6)', backdropFilter: 'blur(2px)' }}>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3">
+            <div className="w-6 h-6 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+          </div>
+        </div>
+      )}
+
+      <div id="lesson-top" className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-8">
         {/* Lesson meta */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3 flex-wrap">
@@ -326,9 +351,9 @@ export default function LessonPage({ params }: { params: { id: string; lesson: s
         <div className="flex items-center justify-between gap-4 pb-10">
           <div className="flex-1">
             {prevLesson !== null && (
-              <Link
-                href={`/courses/${course.id}/learn/${prevLesson}`}
-                className="inline-flex flex-col gap-0.5 px-4 py-2.5 rounded-xl border border-white/15 hover:bg-white/5 transition-colors"
+              <button
+                onClick={() => goTo(prevLesson)}
+                className="inline-flex flex-col gap-0.5 px-4 py-2.5 rounded-xl border border-white/15 hover:bg-white/5 transition-colors text-left"
               >
                 <span className="text-white/35 text-xs flex items-center gap-1">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>
@@ -337,7 +362,7 @@ export default function LessonPage({ params }: { params: { id: string; lesson: s
                 <span className="text-white/60 text-xs font-medium truncate max-w-[140px]">
                   {course.curriculum[prevLesson]?.title}
                 </span>
-              </Link>
+              </button>
             )}
           </div>
 
@@ -345,20 +370,20 @@ export default function LessonPage({ params }: { params: { id: string; lesson: s
             <Confetti active={showConfetti} />
             {done ? (
               nextLesson !== null ? (
-                <Link
-                  href={`/courses/${course.id}/learn/${nextLesson}`}
+                <button
+                  onClick={() => goTo(nextLesson)}
                   className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-white text-black text-sm font-bold tracking-widest uppercase hover:bg-white/90 transition-colors"
                 >
                   Next
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                </Link>
+                </button>
               ) : (
-                <Link
-                  href={`/courses/${course.id}/complete`}
+                <button
+                  onClick={() => goTo(course.lessons)}
                   className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-white text-black text-sm font-bold tracking-widest uppercase hover:bg-white/90 transition-colors"
                 >
                   Get Certificate 🎉
-                </Link>
+                </button>
               )
             ) : (
               <button
@@ -377,8 +402,8 @@ export default function LessonPage({ params }: { params: { id: string; lesson: s
 
           <div className="flex-1 flex justify-end">
             {nextLesson !== null && !done && (
-              <Link
-                href={`/courses/${course.id}/learn/${nextLesson}`}
+              <button
+                onClick={() => goTo(nextLesson)}
                 className="inline-flex flex-col gap-0.5 px-4 py-2.5 rounded-xl border border-white/15 hover:bg-white/5 transition-colors items-end"
               >
                 <span className="text-white/35 text-xs flex items-center gap-1">
@@ -388,7 +413,7 @@ export default function LessonPage({ params }: { params: { id: string; lesson: s
                 <span className="text-white/60 text-xs font-medium truncate max-w-[140px]">
                   {course.curriculum[nextLesson]?.title}
                 </span>
-              </Link>
+              </button>
             )}
           </div>
         </div>

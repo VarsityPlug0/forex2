@@ -248,6 +248,63 @@ const LESSONS: Record<string, LessonConfig> = {
       { tool: 'Measure tool', action: 'Calculate R:R from your entry — only take the trade if it\'s at least 1:2' },
     ],
   },
+
+  // ── Bevan's Three-Candle Strategy ──────────────────────────────────────────
+  'tc-structure': {
+    symbol: 'FX:GBPUSD', interval: '60', studies: [],
+    title: 'Mapping Market Structure (Swing Highs & Lows)',
+    steps: [
+      { tool: 'Zoom out', action: 'Switch to 1H chart — zoom out to see the last 3 months of price action clearly' },
+      { tool: 'Arrow ↑ (swing highs)', action: 'Mark every swing high with an up-arrow. Label each: HH (higher high) or LH (lower high)' },
+      { tool: 'Arrow ↓ (swing lows)', action: 'Mark every swing low with a down-arrow. Label each: HL (higher low) or LL (lower low)' },
+      { tool: 'Text', action: 'Write the current market state at the right edge: "Uptrend / Downtrend / Ranging"' },
+      { tool: 'Horizontal Line', action: 'Draw a line at the most recent swing high — this is the key level price must break to confirm trend continuation' },
+    ],
+  },
+  'tc-supply-demand': {
+    symbol: 'FX:EURUSD', interval: '240', studies: [],
+    title: 'Drawing Supply & Demand Zones',
+    steps: [
+      { tool: 'Zoom out', action: 'Switch to 4H chart — identify 2-3 strong impulsive moves (candles that moved fast and far)' },
+      { tool: 'Rectangle (demand)', action: 'Find the last candle before a bullish impulse. Draw a box from that candle\'s open to its low — this is the demand zone' },
+      { tool: 'Rectangle (supply)', action: 'Find the last candle before a bearish impulse. Draw a box from that candle\'s open to its high — this is the supply zone' },
+      { tool: 'Text', action: 'Label each zone: "D1 Demand — Fresh" or "4H Supply — Tested" based on whether price has returned to it' },
+      { tool: 'Zoom in', action: 'Now switch to 1H — notice how price reacts when it reaches your marked zones. Does it bounce or consolidate?' },
+    ],
+  },
+  'tc-liquidity': {
+    symbol: 'FX:GBPUSD', interval: '15', studies: [],
+    title: 'Identifying Liquidity Sweeps',
+    steps: [
+      { tool: 'Zoom in', action: 'Switch to 15M chart. Find a recent swing low where price made a clear wick extending below it' },
+      { tool: 'Horizontal Line', action: 'Draw a line exactly at the swing low. Notice: did the wick pierce through and then close back above? That is the sweep' },
+      { tool: 'Arrow ↓', action: 'Mark the sweep candle — place a down-arrow at the wick tip labeled "Liquidity Hunt"' },
+      { tool: 'Arrow ↑', action: 'Mark the rejection: place an up-arrow at the candle\'s close labeled "Rejection / Entry Zone"' },
+      { tool: 'Measure tool', action: 'Measure the wick versus the candle body — a valid sweep has a wick at least 2× the body size' },
+    ],
+  },
+  'tc-mtf': {
+    symbol: 'FX:EURUSD', interval: 'D', studies: [],
+    title: 'Multi-Timeframe Analysis — Top-Down',
+    steps: [
+      { tool: 'Weekly chart', action: 'Start on the Weekly. Mark the trend: is price making higher highs and higher lows (bullish) or lower highs and lower lows (bearish)?' },
+      { tool: 'Switch to Daily', action: 'Drop to Daily. Find the nearest untested demand zone (for bullish bias) or supply zone (for bearish bias). Draw the zone box' },
+      { tool: 'Switch to 4H', action: 'Drop to 4H. Is price approaching your Daily zone? Mark the 4H swing points near the zone' },
+      { tool: 'Switch to 1H', action: 'Drop to 1H. Watch for the three-candle pattern forming inside the Daily zone. Mark C1, C2, and C3 as they form' },
+      { tool: 'Text', action: 'Label your full analysis: "W1: Bullish → D1 Demand at [price] → Waiting for 1H three-candle setup"' },
+    ],
+  },
+  'tc-walkthrough': {
+    symbol: 'FX:GBPUSD', interval: '60', studies: [],
+    title: 'Full Strategy Walkthrough — Live Chart',
+    steps: [
+      { tool: 'Weekly', action: 'Open GBPUSD Weekly — confirm the trend direction and mark major swing points' },
+      { tool: 'Daily — zone', action: 'Switch to Daily — draw your highest-quality demand or supply zone. Mark the proximal and distal lines' },
+      { tool: '1H — pattern', action: 'Switch to 1H — wait for price to reach your zone. Mark C1, C2, and C3 when you can see a potential three-candle setup' },
+      { tool: 'Rectangle', action: 'Draw a box around the three-candle pattern (C1, C2, C3) — highlight the sweep wick with an arrow labeled "Liquidity Sweep"' },
+      { tool: 'Measure tool', action: 'Set your entry at C3 close. Measure from entry to the stop (below C3 wick) and to the TP (next swing high). Confirm R:R ≥ 1:2 before taking the trade' },
+    ],
+  },
 };
 
 const DEFAULT_LESSON: LessonConfig = {
