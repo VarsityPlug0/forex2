@@ -173,6 +173,45 @@ function build(type: string, mainEl: HTMLElement, subEl?: HTMLElement): any[] {
 
   switch (type) {
 
+    case 'intro-ta': {
+      // Uptrending bars so all concepts (S/R, trend, MA) are visible
+      const bars = genBars(80, 1.0720, 0.0022, 0.00022, 17);
+      const series = cs();
+      series.setData(bars);
+
+      // Accurately calculated 20-period SMA
+      const s20 = sma(bars, 20);
+      const maLine = chart.addLineSeries({ color: '#6366f1', lineWidth: 2, priceLineVisible: false, lastValueVisible: true, title: 'MA(20)' });
+      maLine.setData(bars.map((b, i) => s20[i] !== null ? { time: b.time, value: s20[i]! } : null).filter(Boolean) as { time: string; value: number }[]);
+
+      // Support: lowest low in first third of data
+      const support = +(Math.min(...bars.slice(0, 30).map(b => b.low))).toFixed(5);
+      // Resistance: highest high in first two thirds
+      const resistance = +(Math.max(...bars.slice(10, 60).map(b => b.high))).toFixed(5);
+      series.createPriceLine({ price: support,    color: GREEN, lineWidth: 2, lineStyle: LineStyle.Dashed, title: 'Support'    });
+      series.createPriceLine({ price: resistance, color: RED,   lineWidth: 2, lineStyle: LineStyle.Dashed, title: 'Resistance' });
+
+      // Trend line: connect first and last significant swing low
+      const swingLows = bars.map((b, i) => ({ b, i })).filter(({ b, i }) =>
+        i > 1 && i < bars.length - 2 &&
+        b.low < bars[i - 1].low && b.low < bars[i + 1].low
+      );
+      if (swingLows.length >= 2) {
+        const first = swingLows[0];
+        const last  = swingLows[swingLows.length - 1];
+        const trendLine = chart.addLineSeries({ color: AMBER, lineWidth: 2, lineStyle: LineStyle.Dashed, priceLineVisible: false, lastValueVisible: false, title: 'Trend' });
+        trendLine.setData([
+          { time: first.b.time, value: first.b.low },
+          { time: last.b.time,  value: last.b.low  },
+        ]);
+      }
+
+      // Mark one candle as the "example" candlestick
+      series.setMarkers([{ time: bars[10].time, position: 'aboveBar', color: TEAL, shape: 'arrowDown', text: 'Candle' }]);
+      chart.applyOptions({ watermark: { color: 'rgba(255,255,255,0.05)', visible: true, text: 'TECHNICAL ANALYSIS', fontSize: 13, horzAlign: 'center', vertAlign: 'top' } });
+      break;
+    }
+
     case 'candlestick-basics':
     case 'candlestick-adv':
     case 'live-chart':

@@ -4,6 +4,7 @@ import { memo, lazy, Suspense } from 'react';
 const LessonChart = lazy(() => import('./LessonChart'));
 
 const CHART_TYPES = new Set([
+  'intro-ta',
   'candlestick-basics', 'candlestick-adv', 'support-resistance', 'trend-lines',
   'moving-averages', 'rsi', 'macd', 'bollinger', 'fibonacci', 'head-shoulders',
   'flags', 'volume', 'backtest', 'drawdown', 'live-chart', 'price-action',
