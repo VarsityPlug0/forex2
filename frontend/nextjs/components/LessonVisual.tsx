@@ -1,5 +1,14 @@
 'use client';
-import { memo } from 'react';
+import { memo, lazy, Suspense } from 'react';
+
+const LessonChart = lazy(() => import('./LessonChart'));
+
+const CHART_TYPES = new Set([
+  'candlestick-basics', 'candlestick-adv', 'support-resistance', 'trend-lines',
+  'moving-averages', 'rsi', 'macd', 'bollinger', 'fibonacci', 'head-shoulders',
+  'flags', 'volume', 'backtest', 'drawdown', 'live-chart', 'price-action',
+  'market-structure', 'bos', 'choch', 'order-blocks', 'fvg', 'chart',
+]);
 
 function getVisualType(title: string, _courseId: number): string { // eslint-disable-line @typescript-eslint/no-unused-vars
   const t = title.toLowerCase();
@@ -2494,6 +2503,17 @@ const visualMap: Record<string, () => JSX.Element> = {
 
 export default memo(function LessonVisual({ title, courseId }: { title: string; courseId: number }) {
   const type = getVisualType(title, courseId);
+
+  if (CHART_TYPES.has(type)) {
+    return (
+      <div style={{ width: '100%', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', overflow: 'hidden', marginBottom: '1.5rem' }}>
+        <Suspense fallback={<div style={{ height: 280, background: '#0d0d0d', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Loading chart…</div>}>
+          <LessonChart type={type} />
+        </Suspense>
+      </div>
+    );
+  }
+
   const Visual = visualMap[type] ?? visualMap['chart'];
   return (
     <div style={{ width: '100%', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '1.5rem' }}>
